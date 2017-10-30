@@ -76,6 +76,7 @@ def society_all():
 
 # 社保历史信息
 @main.route('/society/history', methods=['post'])
+@have_tel_run
 def society_history():
     sb_id = request.form['sb_id']
 
@@ -157,6 +158,7 @@ def tax_info():
 
 # 个税：历史信息
 @main.route('/tax/history', methods=['post'])
+@have_tel_run
 def tax_history():
     gs_id = request.form['gs_id']
 
@@ -193,7 +195,6 @@ def fund_all():
     print('查询关联注册用户所有公积金信息成功')
     print(json_data)
     return json_data
-
 
 # 公积金：　一个
 @main.route('/fund/info', methods=['post'])
@@ -236,6 +237,7 @@ def fund_info():
 
 # 公积金：历史信息
 @main.route('/fund/history', methods=['post'])
+@have_tel_run
 def fund_history():
     gjj_id = request.form['gjj_id']
 
@@ -251,4 +253,123 @@ def fund_history():
     json_data = json.dumps(data)
     print('查询关联注册用户所有公积金信息成功')
     print(json_data)
+    return json_data
+
+
+
+# 添加：社保
+@main.route('/society/add', methods=['post'])
+def society_add():
+    user_id = request.form['user_id']
+    id_card = request.form['id_card']
+    password = request.form['password']
+    # 调用爬虫，传入参数用户ｉｄ，存入数据库
+    save_mysql('SocialSecurity_info', {"userid" : user_id, 'card_number' : id_card, "password" : password})  # 测试
+    # 返回结果
+    data = {
+        "code": 200,
+        "msg": "成功",
+        "result": "1",
+    }
+    json_data = json.dumps(data)
+    print('存储社保成功')
+    return json_data
+
+# 添加：个税
+@main.route('/tax/add', methods=['post'])
+def tax_add():
+    user_id = request.form['user_id']
+    card = request.form['card']
+    name = request.form['name']
+    card_type = request.form['card_type']
+    password = request.form['password']
+    # 调用爬虫，传入参数用户ｉｄ，存入数据库
+    save_mysql('personaltax_info', {"UserID": user_id, 'card': card, "password": password, 'Username' : name, 'card_type':card_type})  # 测试
+    # 返回结果
+    data = {
+        "code": 200,
+        "msg": "成功",
+        "result": "1",
+    }
+    json_data = json.dumps(data)
+    print('存储个税成功')
+    return json_data
+
+# 添加：公积金
+@main.route('/fund/add', methods=['post'])
+def fund_add():
+    user_id = request.form['user_id']
+    card = request.form['card']
+    card_type = request.form['card_type']
+    password = request.form['password']
+    # 调用爬虫，传入参数用户ｉｄ，存入数据库
+    save_mysql('bjgjj_info',
+               {"User_id": user_id, 'card': card, "password": password, 'card_type': card_type})  # 测试
+    # 返回结果
+    data = {
+        "code": 200,
+        "msg": "成功",
+        "result": "1",
+    }
+    json_data = json.dumps(data)
+    print('存储公积金成功')
+    return json_data
+
+
+# 删除：社保
+@main.route('/society/delete', methods=['post'])
+@have_tel_run
+def society_delete():
+    sb_id = request.form['sb_id']
+    # user_id = request.form['user_id']
+    edit_data = {
+        'userid' : 0
+    }
+    update_mysql('SocialSecurity_info', edit_data, 'id=%s' % sb_id)
+
+    data = {
+        "code": 200,
+        "msg": "成功",
+        "result": "1",
+    }
+    json_data = json.dumps(data)
+    print('删除社保成功')
+    return json_data
+
+# 删除：个税
+@main.route('/tax/delete', methods=['post'])
+@have_tel_run
+def tax_delete():
+    gs_id = request.form['gs_id']
+    edit_data = {
+        'UserID': 0
+    }
+    update_mysql('personaltax_info', edit_data, 'id=%s' % gs_id)
+
+    data = {
+        "code": 200,
+        "msg": "成功",
+        "result": "1",
+    }
+    json_data = json.dumps(data)
+    print('删除个税成功')
+    return json_data
+
+# 删除：公积金
+@main.route('/fund/delete', methods=['post'])
+@have_tel_run
+def fund_delete():
+    gjj_id = request.form['gjj_id']
+    edit_data = {
+        'User_id': 0
+    }
+    update_mysql('bjgjj_info', edit_data, 'id=%s' % gjj_id)
+
+    data = {
+        "code": 200,
+        "msg": "成功",
+        "result": "1",
+    }
+    json_data = json.dumps(data)
+    print('删除公积金成功')
     return json_data

@@ -478,6 +478,7 @@ def user_edit():
 
 # 首页社保／公积金／个税
 @main.route('/user/sgg', methods=['POST'])
+@have_tel_run
 def user_sgg():
 
     data = {

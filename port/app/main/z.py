@@ -3,6 +3,7 @@ import hashlib
 from flask import render_template, request, jsonify, session, make_response, redirect, url_for, g
 import time
 import functools
+import json
 import pymysql
 
 # c = pymysql.connect(host='127.0.0.1',user='root',password='mysql',db='admin_user',charset="utf8")
@@ -16,7 +17,7 @@ def check_mysql(tables=None, column='*', where=None, sql=None):
 
     if where:
         sql = 'select %s from %s where %s' % (column, tables, where)
-        print(sql)
+        # print(sql)
         employee = cur.execute(sql)
         return cur.fetchall()
 
@@ -75,7 +76,7 @@ def md5(password):
     hash.update(password.encode('utf-8'))
     return hash.hexdigest()
 
-# 判断成功登录装饰器
+# 判断成功登录装饰器:　没用
 def login_required(function):
     @functools.wraps(function)
     def ll(*args, **kwargs):
@@ -114,7 +115,33 @@ def login_required(function):
     return ll
 
 
+# 电话存在执行
+def have_tel_run(function):
+    @functools.wraps(function)
+    def ll(*args, **kwargs):
+        data = {
+            "code": 404,
+            "msg": "成功",
+            "result": "-1",
+        }
+        tel = request.form['tel']
+        if 11 != len(tel):
+            data['msg'] = '手机号错误'
 
+        info = check_mysql('360_user', 'id', where='mobile="%s"' % tel)
+        if not len(info):
+            data['msg'] = '电话不存在'
+            json_data = json.dumps(data)
+            print('电话不存在')
+            return json_data
+        if not len(info[0]):
+            data['msg'] = '电话不存在'
+            json_data = json.dumps(data)
+            print('电话不存在')
+            return json_data
+
+        return function(*args, **kwargs)
+    return ll
 
 # 查询注册用户个人信息
 def user_info(mobile):
@@ -154,6 +181,7 @@ def user_info(mobile):
 
     return data, str(user_info_tuple[0][17])
 
+
 # 查询关于注册用户所有社保信息
 def sb_all_info(id):
     '''
@@ -161,9 +189,13 @@ def sb_all_info(id):
     :param id: 注册用户ｉｄ
     :return: 社保所有信息
     '''
+    # social_all_info = check_mysql('SocialSecurity_info',
+    #                           'id, name, House_type, Total_paymonth, Card_number, Social_number, Phone, Payment_type, Income_wages, owned_company, Insured_area, Hospital1, Hospital2, Hospital3, Hospital4, Hospital5, Insured_status, Recently_paid',
+    #                           where='find_in_set(%s, userid)' % id)
+
     social_all_info = check_mysql('SocialSecurity_info',
-                              'id, name, House_type, Total_paymonth, Card_number, Social_number, Phone, Payment_type, Income_wages, owned_company, Insured_area, Hospital1, Hospital2, Hospital3, Hospital4, Hospital5, Insured_status, Recently_paid',
-                              where='find_in_set(%s, userid)' % id)
+                              'id, name, House_type, Total_paymonth, Card_number, Social_number, Phone, Payment_type, Income_wages, owned_company, Insured_area, Hospital1, Hospital2, Hospital3, Hospital4, Hospital5, Insured_status, Recently_paid, Card_progress',
+                              where='userid="%s"' % id)
     if not len(social_all_info):
         return []
 
@@ -188,6 +220,7 @@ def sb_all_info(id):
             "Insured_status": social_tuple[16],  # 参保状态
             "Recently_paid": social_tuple[17],  # 最近缴纳
             "id": social_tuple[0],  # 社保ｉｄ
+            "Card_progress" : social_tuple[18],  # 制卡进度字段（1，2，3..代表制卡的进度）
         }
         data_list.append(data)
 
@@ -201,7 +234,7 @@ def sb_info(sb_id):
     :return: 字典：个人信息　　　列表：关联注册用户ｉｄ
     '''
     social_info = check_mysql('SocialSecurity_info',
-                              'userid, name, House_type, Total_paymonth, Card_number, Social_number, Phone, Payment_type, Income_wages, owned_company, Insured_area, Hospital1, Hospital2, Hospital3, Hospital4, Hospital5, Insured_status, Recently_paid',
+                              'userid, name, House_type, Total_paymonth, Card_number, Social_number, Phone, Payment_type, Income_wages, owned_company, Insured_area, Hospital1, Hospital2, Hospital3, Hospital4, Hospital5, Insured_status, Recently_paid, id, Card_progress',
                               where='id="%s"' % sb_id)
 
     # 判断查询社保是否为空
@@ -226,6 +259,8 @@ def sb_info(sb_id):
         "Hospital5": social_info[0][15],  # 定点医院5
         "Insured_status": social_info[0][16],  # 参保状态
         "Recently_paid": social_info[0][17],  # 最近缴纳
+        "id" : social_info[0][18],  # id
+        "Card_progress" : social_info[0][19],  # 制卡进度字段（1，2，3..代表制卡的进度）
     }
     user_id_list = social_info[0][0].split(',')  # 社保用户关联的注册用户的ｉｄ
 
@@ -284,8 +319,8 @@ def sb_history_info(sb_id):
 # 个税：关联注册用户　所有个人信息
 def gs_all_info(id):
     gs_all_info = check_mysql('personaltax_info',
-                                  'Username, Sex, Card_number, Recently_paid, Monthly_deposit, owned_company, pay_total',
-                                  where='find_in_set(%s, UserID)' % id)
+                                  'Username, Sex, Card_number, Recently_paid, Monthly_deposit, owned_company, pay_total, id',
+                                  where='UserID="%s"' % id)
     if not len(gs_all_info):
         return []
 
@@ -299,6 +334,7 @@ def gs_all_info(id):
             "Monthly_deposit" : gs_info[4],  # 月缴存额
             "owned_company" : gs_info[5],  # 所属单位
             "pay_total" : gs_info[6],  # 缴纳总额
+            "id": gs_info[7],  # id
         }
         data_list.append(data)
 
@@ -311,7 +347,7 @@ def gs_info(gs_id):
     '''
 
     gs_info = check_mysql('personaltax_info',
-                              'UserID, Username, Sex, Card_number, Recently_paid, Monthly_deposit, owned_company, pay_total',
+                              'UserID, Username, Sex, Card_number, Recently_paid, Monthly_deposit, owned_company, pay_total, id',
                               where='id="%s"' % gs_id)
 
     # 判断查询社保是否为空
@@ -326,6 +362,7 @@ def gs_info(gs_id):
         "Monthly_deposit" : gs_info[0][5],  # 月缴存额
         "owned_company" : gs_info[0][6],  # 所属单位
         "pay_total" : gs_info[0][7],  # 缴纳总额
+        "id" : gs_info[0][8],  # id
     }
     user_id_list = gs_info[0][0].split(',')  # 社保用户关联的注册用户的ｉｄ
 
@@ -367,7 +404,7 @@ def gs_history_info(gs_id):
 def gjj_all_info(id):
     gjj_all_info = check_mysql('bjgjj_info',
                                   'id, username, Sex, Card_number, Department_number, Bank_card, Phone, Pay_status, Fund_banlance, Insured_area, Owned_company',
-                                  where='find_in_set(%s, User_id)' % id)
+                                  where='User_id="%s"' % id)
     if not len(gjj_all_info):
         return []
 
