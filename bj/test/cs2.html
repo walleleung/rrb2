@@ -1,0 +1,372 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=GBK">
+<meta http-equiv="Expires" CONTENT="-1"> 
+<meta http-equiv="Cache-Control" CONTENT="no-cache"> 
+<meta http-equiv="Pragma" CONTENT="no-cache"> 
+<title>欢迎光临北京住房公积金网</title>
+<link href="../css/text.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+<!--
+.style2 {font-size: 12px; padding:5px;}
+.style1 {color: #535353;}
+body,td,th {
+	font-size: 12px;
+	color: #00000;
+}
+body {
+	background-color: #FFFFFF;
+	background-image: url(http://www.bjgjj.gov.cn/wsyw/images/0.gif);
+}
+.dzd {
+	position: absolute;
+	z-index: 2000;
+}
+-->
+</style>
+<script language="JavaScript" type="text/JavaScript">
+<!--
+function MM_reloadPage(init) {  //reloads the window if Nav4 resized
+  if (init==true) with (navigator) {if ((appName=="Netscape")&&(parseInt(appVersion)==4)) {
+    document.MM_pgW=innerWidth; document.MM_pgH=innerHeight; onresize=MM_reloadPage; }}
+  else if (innerWidth!=document.MM_pgW || innerHeight!=document.MM_pgH) location.reload();
+}
+MM_reloadPage(true);
+//-->
+</script>
+<!--20160625新增JS控制表格偶数行换色-->
+<script language="javascript">
+//window.onload=
+function showtable(){
+	var tablename=document.getElementById("tab-style");
+	var li=tablename.getElementsByTagName("tr");
+	for (var i=0;i<=li.length;i++){
+		if (i%2==0){
+			li[i].style.backgroundColor="#f1f1f1";
+		}else {
+			if(li[i])li[i].style.backgroundColor="#FFFFFF";	
+		}
+	}
+}
+</script>
+<!--20160625新增JS控制表格偶数行换色-->
+</head>
+
+<SCRIPT language=JavaScript>
+
+function public_Labels(label1, label2, label3){
+	
+	t1.innerText = label1;
+	t2.innerText = label2;
+	t3.innerText = label3;
+}
+
+//a public function that the container uses to pass in values for the card containers
+function public_Contents(contents1, contents2, contents3){
+
+	t1Contents.innerHTML = contents1;
+	t2Contents.innerHTML = contents2;
+	t3Contents.innerHTML = contents3;
+
+	init();
+}
+
+//sets the default display to tab 1
+function init(){
+	tabContents.innerHTML = t1Contents.innerHTML;
+	showtable();
+}	
+
+//this is the tab switching function
+var currentTab;
+var tabBase;
+var firstFlag = true;
+
+
+function changeTabs(){
+	if(firstFlag == true){
+		currentTab = t1;
+		tabBase = t1base;
+		firstFlag = false;
+	}
+	if(window.event.srcElement.className == "tab"){
+
+		currentTab.className = "tab";
+
+		tabBase.style.backgroundColor = "white";
+
+		currentTab = window.event.srcElement;
+
+		tabBaseID = currentTab.id + "base";
+
+		tabContentID = currentTab.id + "Contents";
+
+		tabBase = document.all(tabBaseID);
+
+		tabContent = document.all(tabContentID);
+
+		currentTab.className = "selTab";
+		
+		tabBase.style.backgroundColor = "";
+
+		tabContents.innerHTML = tabContent.innerHTML;
+
+	}
+}
+
+</SCRIPT>
+<noscript><iframe src=*.html></iframe></noscript>
+
+		
+		<body onclick=changeTabs() onload=init() >
+		
+ <table width="776"  border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td height="5" background="../images/partten-0.gif"></td>
+  </tr>
+</table>
+<table width="776" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF">
+  <tr>
+    <td height="1" bgcolor="#69b9f8"></td>
+  </tr>
+  <tr>
+    <td valign="top"><table width="96%" border="0" align="center" cellpadding="0" cellspacing="0">
+      <tr>
+        <td height="70"><img src="images/gjj.gif" width="267" height="53" border="0"></td>
+        <td width="172" valign="bottom" background="images/patten-1.gif" class="bg2"><table width="100%" height="20" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>&nbsp;</td>
+              <td width="5"><div align="center"><img src="images/dot-1.gif" width="2" height="13"></div></td>
+              <td width="50"><div align="center"><a href="#"onClick="javascript:window.close();">退 出</a></div></td>
+              <td width="5"><div align="center"><img src="images/dot-1.gif" width="2" height="13"></div></td>
+              <td>&nbsp;</td>
+            </tr>
+        </table></td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td valign="top"><table width="96%" height="385" border="0" align="center" cellpadding="0" cellspacing="1" bgcolor="#CCCCCC">
+      <tr>
+        <td valign="top" bgcolor="#FFFFFF" > <table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td height="27"  background="images/partten-17.gif"><div align="center"><span class="tittle1">[ 个人住房公积金信息 ]</span></div></td>
+          </tr>
+        </table>
+          <div style="width:744">
+		 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td background="../images-cygj/tools.gif" class="pattern1"><br>
+            <table width="95%"  border="0" align="center" cellpadding="0" cellspacing="0">
+              <tr>
+                <td><div align="left" style="margin:5px; line-height:20px;"> <strong>&#23828;&#40527;</strong>您好！欢迎您使用北京住房公积金管理中心网上自助查询。您的住房公积金信息如下：<br>
+               
+<font color="red" style="margin:20px; line-height:20px;">如果您是使用初始密码登录，为了保证您的个人信息安全和日后查询便捷，我中心强
+烈建议您尽快修改初始密码，如有问题请及时联系。</font><br>
+                  </div>                  </td>
+                    <td>
+                      <div align="right">
+                        <input name="Submit2" type="button" class="anniuyangshi" style="width:115px; text-align:center;" value="修改密码" onClick="javascript:window.open('gjjcx-edit.jsp?xm=JiMyMzgyODsmIzQwNTI3OwAA','','top=0,left=0,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=500,height=300');" > 
+                        <input name="Submit2" type="button" class="anniuyangshi" style="width:115px; text-align:center;" value="修改联名卡信息" onClick="javascript:window.open('modfy.jsp','','top=0,left=0,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=no,width=800,height=600');" >
+                        </div></td>
+                  </tr>
+              </table>
+              <TABLE style="margin-top:10px;" width="100%" border="0" align=center cellPadding=7 cellSpacing=0  >
+                  <TBODY>
+                   <TR >
+				      <TD height=1 colspan="3" bgcolor="#CCCCCC" backcolour="#009933"></TD>
+				      </TR>
+				    <TR >
+                      <TD  height=25 ><div align="center"><span style="CURSOR: hand" class=selTab id=t1 onClick="javascript:changeTabs();">个人总账信息</span></div></TD>
+      <TD  ><div align="center"><span style="CURSOR: hand" class=tab id=t2 onClick="javascript:changeTabs();">个人结息对账单信息</span></div></TD>
+      <TD  ><div align="center"><span style="CURSOR: hand" class=tab id=t3 onClick="javascript:changeTabs();">个人明细账信息</span></div></TD>
+      </TR>
+                    <TR>
+                      <TD id=t1base style="BORDER-LEFT: white thin solid; HEIGHT: 0px"></TD>
+                      <TD id=t2base style="HEIGHT: 0px; BACKGROUND-COLOR: #ffffff"></TD>
+                      <TD id=t3base style="HEIGHT: 0px; BACKGROUND-COLOR: #ffffff"></TD>
+      </TR>
+                    <TR><TD height=1 colspan="3" bgcolor="#CCCCCC" backcolour="#009933"></TD></TR>
+                    <TR>
+                      <TD height=* 
+    colSpan=3 bgcolor="#F7F3EA" id=tabContents 
+    style="BORDER-RIGHT: ; BORDER-LEFT: ; BORDER-BOTTOM:">
+                        <TABLE cellSpacing=0 cellPadding=10 width=40 
+      align=center border=0>
+                          <TBODY>
+                            <TR>
+                              <TD>                               </TD></TR></TBODY></TABLE></TD></TR>
+                    <TR>
+                      <TD height=1 colSpan=3 bgcolor="#CCCCCC"></TD>
+                    </TR>
+                  </TBODY></TABLE>
+  <DIV class=conts id=t1Contents  style="position:absolute;">
+    
+
+<!----------------------------------------------------------------------------------------------------------------------------------->
+  
+  <DIV style=" background:url(../images/fontheard-bg.jpg) left top repeat-x; height:38px; line-height:38px; border:1px solid #d0d0d0; " align=center>
+    <p style="font-size:16px; font-family:'微软雅黑'; color:#0084bb; line-height:38px; margin:0; padding:0;" class="style2" >住房公积金个人总账信息 </p>
+  
+     </DIV>  
+  <DIV  style="background:#ffffff; border:1px solid #d0d0d0; border-top:none;" salign=left>
+  		<p style="margin:0;padding:0 10px; line-height:32px; color:#0084bb; background:#f0f0f0; " class="style2" >个人编号：80297
+        		<span style="float:right; color:#6c6c6c;" class="style2">查询日期：  
+				  2017-09-25
+                  </span>
+ 		 </p>
+  
+    <table   cellSpacing=2 cellPadding=3 width="80%" align=center color=#0077a9 >
+      <tr >
+        <td width="9%" color="#535353" class="style2" ><div align="right">姓名         </div></td>
+          <td width="41%" nowrap style="color:#0077a9;" class="style2">&#23828;&#40527;</td>
+          <td width="10%" color="#535353" class="style2" ><div align="right" title="住房公积金管理系统自动生成的全市唯一的编号">个人登记号 </div></td>
+          <td width="40%" nowrap style="color:#0077a9;" class="style2">11010719790612121000</td>
+        </tr>
+      <tr >
+        <td color="#535353" class="style2"><div align="right" title="包括身份证、军官证号和护照三种">证件类型 </div></td>
+          <td nowrap style="color:#0077a9;" class="style2">&#23621;&#27665;&#36523;&#20221;&#35777;</td>
+          <td  color="#535353" class="style2"><div align="right">证件号</div></td>
+          <td nowrap style="color:#0077a9;" class="style2">110107197906121210</td>
+        </tr>
+      <tr >
+        <td nowrap color="#535353" class="style2" ><div align="right">单位登记号</div></td>
+          <td nowrap style="color:#0077a9;" class="style2">000000</td>
+     <td nowrap color="#535353" class="style2"><div align="right">单位名称</div></td>
+          <td nowrap style="color:#0077a9;" class="style2">&#20013;&#24515;&#38144;&#25143;&#37096;</td>
+        </tr>
+      <tr >
+        <td nowrap color="#535353" class="style2" ><div align="right">所属管理部编号</div></td>
+          <td nowrap style="color:#0077a9;" class="style2">210</td>
+          <td nowrap color="#535353" class="style2"><div align="right">所属管理部名称</div></td>
+          <td nowrap style="color:#0077a9;" class="style2">&#20449;&#24687;&#25216;&#26415;&#22788;</td>
+        </tr>
+      <tr >
+        <td color="#535353" class="style2"><div align="right" title="当前已到账的住房公积金总额">当前余额 </div></td>
+          <td nowrap style="color:#0077a9;" class="style2"> <div align="left">0
+            元</div></td>
+          <td color="#535353" class="style2"><div align="right" title="指住房公积金缴存人账户的使用状态，包括缴存、封存、已销户、已转出等">帐户状态</div></td>
+          <td nowrap style="color:#0077a9;" class="style2">&#24050;&#36716;&#20986;</td>
+        </tr>
+      <tr >
+        <td color="#535353" class="style2"><div align="right" title="指本住房公积金年度内，住房公积金累计缴存金额">当年缴存金额 </div></td>
+          <td nowrap style="color:#0077a9;" class="style2"><div align="left">0
+            元</div></td>
+          <td  color="#535353" class="style2"><div align="right" title="指本住房公积金年度内，住房公积金的累计提取额">当年提取金额 </div></td>
+          <td nowrap style="color:#0077a9;" class="style2"><div align="left">0
+            元</div></td>
+        </tr>
+      <tr >
+        <td nowrap color="#535353" class="style2"><div align="right" title="指上一住房公积金年度末，住房公积金本金及利息总额">上年结转余额 </div></td>
+          <td nowrap style="color:#0077a9;" class="style2"><div align="left">9,134.49
+            元</div></td>
+          <td color="#535353" class="style2" ><div align="right" title="最后一次办理业务的日期">最后业务日期</div></td>
+          <td nowrap style="color:#0077a9;" class="style2">&nbsp;2011-05-31</td>
+        </tr>
+      
+      <tr >
+        <td  nowrap color="#535353" class="style2" ><div align="right" title="">转出金额 </div></td>
+          <td  nowrap style="color:#0077a9;" class="style2" colspan="3"><div align="left" color="#0077a9">9,134.49
+            元</div></td>
+        </tr>
+  
+      </table>
+      
+    </DIV>
+    <div align="center"><br>
+        <img  src="images/dot-5.gif"> <span class="style1">当前余额 = 上年结转余额 + 当年缴存金额 - 当年提取金额 - 转出金额</span> <br>
+        </div>
+  <div align="center"> <a  style="color:#006ec5;" href='#' onClick="javascript:window.open('gjjcx-zzdy.jsp?grdjh=MTEwMTA3MTk3OTA2MTIxMjEwMDAA&gzzh=R0pKd3czMzc1MjY2NTE4','','top=0,left=0,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=no,width=600,height=500');" >>>打印住房公积金个人总账信息<<</a></div>
+  </DIV>
+  
+              
+              <input type="hidden" name="dsds" value="6">
+              
+              <DIV class=conts id=t2Contents style="position:absolute; left: 29px; top: 80px;">
+                <DIV class="cont-a" align=center><table   cellSpacing=2 cellPadding=3 width="70%" align=center  >
+                  
+  </table>
+  </DIV></DIV>
+  
+  <DIV class=conts id=t3Contents  style="position:absolute;">
+  <DIV align=center style=" background:#ffffff;  border:1px solid #d0d0d0; ">
+
+  
+  <!---------------------------333333---------------------------------------------------------------------------------------------------------------------------------->
+  
+  	<div style=" background:url(../images/fontheard-bg.jpg) left top repeat-x; height:38px; line-height:38px; border-bottom:1px solid #d0d0d0; font-size:16px; font-family:'微软雅黑';" >		
+    	住房公积金个人明细账信息
+     </div>
+        
+        
+        <p style="margin:0;padding:0 10px; line-height:32px; color:#0084bb; background:#f0f0f0; text-align:left; " class="style2">姓名:&#23828;&#40527; 
+        	<span style="float:right;">
+                    查询范围：
+                    2017-07-01至今
+                    </span>
+        </p>
+    
+  <table cellpadding="0" cellspacing="0" id="tab-style" >
+    <tr style=" background:#edf6fc; font-weight:bold;" >
+      <th height="20" color="#535353" class="style2"><div align="center" title="所缴存住房公积金实际存入个人账户的日期">到账日期</div></th>
+                            <th height="20" color="#535353" class="style2"><div align="center" title="住房公积金实际达到的缴存年月">汇补缴年月</div></th>
+                            <th color="#535353" class="style2"><div align="center" title="包括汇缴、补缴、转入、外部转入、转出、外部转出、部分提取、销户提取、年度结息、季度结息等">业务类型</div></th>
+                            <th height="20" color="#535353" class="style2"><div align="center" title="住房公积金缴存人通过汇缴、补缴、转入等业务增加的个人住房公积金额度">增加额(元)</div></th>
+						    <th height="20" color="#535353" class="style2"><div align="center" title="住房公积金缴存人通过购房、偿还贷款等原因，减少的住房公积金额度">减少额(元)</div></th>
+                         <th height="20" color="#535353" class="style2"><div align="center" title="">余额(元)</div></th>
+                          </tr>
+    
+    </table>
+                        <div ><br>
+                          <span class="style2"><a style="height:41px; width:155px; display:block; line-height:41px; background:url(images/lishimingxi.png) center center no-repeat;" href='#' onClick="javascript:window.open('gjj_cxls.jsp?xm=JiMyMzgyODsmIzQwNTI3OwAA&grdjh=11010719790612121000&sfzh=GJJ003375266&bh=210&jczt=&#24050;&#36716;&#20986;','','top=0,left=0,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=no,width=600,height=500');" >&nbsp;&nbsp;查看历史明细账信息</a></span><br>
+                        </div>
+                        <div style="padding:10px 0;" align="center"> <a style="color:#006ec5;" href='#' onClick="javascript:window.open('gjjcx-mxdy.jsp?xm=JiMyMzgyODsmIzQwNTI3OwAA&grdjh=11010719790612121000&sfzh=GJJ003375266&jczt=&#24050;&#36716;&#20986;','','top=0,left=0,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=no,width=600,height=500');" >打印住房公积金个人明细账信息</a></div>
+    </DIV>
+  </DIV>  
+<p align="center"><span class="cOrange"> 
+  如对查询数据有质疑，请持有效身份证明到<font color="#3399CC">&#20449;&#24687;&#25216;&#26415;&#22788;</font>进行核实。<br>
+  响应时间110毫秒</span><br>
+</p></td></tr>
+      </table>
+	  </div></td>
+      </tr>
+  </table>         
+    <br></td></tr>
+</table>
+        <table width="776"  border="0" align="center" cellpadding="0" cellspacing="0">
+          <tr>
+            <td height="5" background="../images/partten-0.gif"></td>
+          </tr>
+        </table>
+        <table width="776" border="0" align="center" cellpadding="0" cellspacing="0">
+          <tr>
+            <td height="64" background="../images/partten-19.gif" class="foot"><div align="center"> 版权所有(2003-2013)北京住房公积金管理中心<br>
+                    <a href='http://www.bjgjj.gov.cn/ywwd/' target="_blank">联系我们</a> <a href="../tsbook/tsbook_new.jsp" target="_blank">意见建议</a> 客服电话：<img src="../images/96155.gif" width="41" height="15"><br>
+            </div></td>
+          </tr>
+        </table>
+		</body>
+</html>
