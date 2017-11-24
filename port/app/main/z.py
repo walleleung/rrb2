@@ -5,6 +5,7 @@ import time
 import functools
 import json
 import pymysql
+import calendar
 
 # c = pymysql.connect(host='127.0.0.1',user='root',password='mysql',db='admin_user',charset="utf8")
 # u = conn.cursor()
@@ -125,6 +126,7 @@ def have_tel_run(function):
             "result": "-1",
         }
         tel = request.form['tel']
+        g.tel = tel
         if 11 != len(tel):
             data['msg'] = '手机号错误'
 
@@ -181,6 +183,24 @@ def user_info(mobile):
 
     return data, str(user_info_tuple[0][17])
 
+# save log
+def save_log(tel, inner, p_type, ip=''):
+    try:
+        user_dict, id = user_info(tel)
+        data = {
+            "user_id" : user_dict['id'],  #
+            "source" : user_dict['Source_channel'],  # 用户来源
+            "info" : inner,  # 内容
+            "type" : p_type,  # 类型
+            "province" : user_dict['Province_id'],   # 省id
+            "city" : user_dict['City_id'],  # 市id
+            "name" : user_dict['username'],  # 操作人姓名
+            "ip" : ip,  # 操作人ip
+        }
+        save_mysql('log_info', data)
+    except Exception as ret:
+        print('存入log错误：', ret)
+
 
 # 查询关于注册用户所有社保信息
 def sb_all_info(id):
@@ -202,26 +222,33 @@ def sb_all_info(id):
     data_list = []
     for social_tuple in social_all_info:
         data = {
-            "name": social_tuple[1],  # 社保用户名
-            "House_type": social_tuple[2],  # 户口类型
-            "Total_paymonth": social_tuple[3],  # 累计缴纳
-            "Card_number": social_tuple[4],  # 身份证号
-            "Social_number": social_tuple[5],  # 社保编号
-            "Phone": social_tuple[6],  # 联系电话
-            "Payment_type": social_tuple[7],  # 缴费人员类别
-            "Income_wages": social_tuple[8],  # 申报月工资收入
-            "owned_company": social_tuple[9],  # 所属公司
-            "Insured_area": social_tuple[10],  # 参保区域
-            "Hospital1": social_tuple[11],  # 定点医院1
-            "Hospital2": social_tuple[12],  # 定点医院2
-            "Hospital3": social_tuple[13],  # 定点医院3
-            "Hospital4": social_tuple[14],  # 定点医院4
-            "Hospital5": social_tuple[15],  # 定点医院5
-            "Insured_status": social_tuple[16],  # 参保状态
-            "Recently_paid": social_tuple[17],  # 最近缴纳
+            "username": social_tuple[1],  # 社保用户名
+            # "House_type": social_tuple[2],  # 户口类型
+            # "Total_paymonth": social_tuple[3],  # 累计缴纳
+            # "Card_number": social_tuple[4],  # 身份证号
+            # "Social_number": social_tuple[5],  # 社保编号
+            # "Phone": social_tuple[6],  # 联系电话
+            # "Payment_type": social_tuple[7],  # 缴费人员类别
+            # "Income_wages": social_tuple[8],  # 申报月工资收入
+            # "owned_company": social_tuple[9],  # 所属公司
+            # "Insured_area": social_tuple[10],  # 参保区域
+            # "Hospital1": social_tuple[11],  # 定点医院1
+            # "Hospital2": social_tuple[12],  # 定点医院2
+            # "Hospital3": social_tuple[13],  # 定点医院3
+            # "Hospital4": social_tuple[14],  # 定点医院4
+            # "Hospital5": social_tuple[15],  # 定点医院5
+            # "Insured_status": social_tuple[16],  # 参保状态
+            # "Recently_paid": social_tuple[17],  # 最近缴纳
             "id": social_tuple[0],  # 社保ｉｄ
-            "Card_progress" : social_tuple[18],  # 制卡进度字段（1，2，3..代表制卡的进度）
+            # "Card_progress" : social_tuple[18],  # 制卡进度字段（1，2，3..代表制卡的进度）
+            "type": 2,
         }
+        # 添加性别
+        try:
+            data['sex'] = '0' if int(social_tuple[4][-2]) % 2 == 0 else '1'
+        except Exception as e:
+            print(e)
+            data['sex'] = '身份证错误'
         data_list.append(data)
 
     return data_list
@@ -287,6 +314,12 @@ def sb_history_info(sb_id):
         "wound": [],  # 工伤
         "maternity": [],  # 生育
     }
+    data_dict1 = {"year": '', "list": []}
+    data_dict2 = {"year": '', "list": []}
+    data_dict3 = {"year": '', "list": []}
+    data_dict4 = {"year": '', "list": []}
+    data_dict5 = {"year": '', "list": []}
+    data = {}
     for social in social_history:
 
         data = {
@@ -298,17 +331,53 @@ def sb_history_info(sb_id):
         }
         remark = social[5]
         if remark == '医保':
-            data_dict['medical'].append(data)
+            # data_dict['medical'].append(data)
+            if social[0][:4] == data_dict1["year"]:
+                data_dict1["list"].append(data)
+                continue
+            if data_dict1["year"]:
+                data_dict['medical'].append(data_dict1)
+            data_dict1 = {"year": social[0][:4], "list": [data]}
+
         elif remark == '养老':
-            data_dict['endowment'].append(data)
+            if social[0][:4] == data_dict2["year"]:
+                data_dict2["list"].append(data)
+                continue
+            if data_dict2["year"]:
+                data_dict['endowment'].append(data_dict2)
+            data_dict2 = {"year": social[0][:4], "list": [data]}
+            # data_dict['endowment'].append(data)
         elif remark == '失业':
-            data_dict['unemployment'].append(data)
+            if social[0][:4] == data_dict3["year"]:
+                data_dict3["list"].append(data)
+                continue
+            if data_dict3["year"]:
+                data_dict['unemployment'].append(data_dict3)
+            data_dict3 = {"year": social[0][:4], "list": [data]}
+            # data_dict['unemployment'].append(data)
         elif remark == '工伤':
-            data_dict['wound'].append(data)
+            if social[0][:4] == data_dict4["year"]:
+                data_dict4["list"].append(data)
+                continue
+            if data_dict4["year"]:
+                data_dict['wound'].append(data_dict4)
+            data_dict4 = {"year": social[0][:4], "list": [data]}
+            # data_dict['wound'].append(data)
         elif remark == '生育':
-            data_dict['maternity'].append(data)
+            if social[0][:4] == data_dict5["year"]:
+                data_dict5["list"].append(data)
+                continue
+            if data_dict5["year"]:
+                data_dict['maternity'].append(data_dict5)
+            data_dict5 = {"year": social[0][:4], "list": [data]}
+            # data_dict['maternity'].append(data)
         else:
             print(data, '分类五险失败')
+    data_dict['medical'].append(data_dict1)
+    data_dict['endowment'].append(data_dict2)
+    data_dict['unemployment'].append(data_dict3)
+    data_dict['wound'].append(data_dict4)
+    data_dict['maternity'].append(data_dict5)
 
     return data_dict
 
@@ -327,14 +396,15 @@ def gs_all_info(id):
     data_list = []
     for gs_info in gs_all_info:
         data = {
-            "Username" : gs_info[0],  # 用户姓名
-            "Sex" : gs_info[1],  # 1代表男，2代表女
-            "Card_number" : gs_info[2],  # 身份证号
-            "Recently_paid" : gs_info[3],  # 最近缴纳
-            "Monthly_deposit" : gs_info[4],  # 月缴存额
-            "owned_company" : gs_info[5],  # 所属单位
-            "pay_total" : gs_info[6],  # 缴纳总额
+            "username" : gs_info[0],  # 用户姓名
+            "sex" : str(gs_info[1]),  # 1代表男，2代表女
+            # "Card_number" : gs_info[2],  # 身份证号
+            # "Recently_paid" : gs_info[3],  # 最近缴纳
+            # "Monthly_deposit" : gs_info[4],  # 月缴存额
+            # "owned_company" : gs_info[5],  # 所属单位
+            # "pay_total" : gs_info[6],  # 缴纳总额
             "id": gs_info[7],  # id
+            "type": 1,
         }
         data_list.append(data)
 
@@ -347,7 +417,7 @@ def gs_info(gs_id):
     '''
 
     gs_info = check_mysql('personaltax_info',
-                              'UserID, Username, Sex, Card_number, Recently_paid, Monthly_deposit, owned_company, pay_total, id',
+                              'UserID, Username, Sex, Card_number, Recently_paid, Monthly_deposit, owned_company, pay_total, id, Update_time',
                               where='id="%s"' % gs_id)
 
     # 判断查询社保是否为空
@@ -363,6 +433,7 @@ def gs_info(gs_id):
         "owned_company" : gs_info[0][6],  # 所属单位
         "pay_total" : gs_info[0][7],  # 缴纳总额
         "id" : gs_info[0][8],  # id
+        "recent_update_time": gs_info[0][9]  # 修改时间(最近更新时间)
     }
     user_id_list = gs_info[0][0].split(',')  # 社保用户关联的注册用户的ｉｄ
 
@@ -374,7 +445,7 @@ def gs_history_info(gs_id):
     :return: [{}, {}...]
     '''
     gs_history = check_mysql('personaltax_list',
-                'Pay_time, Tax_type, Tax_rate, Taxable_income, Income_money, Withhold_taxable, Owned_company',
+                'Pay_time, Tax_type, Tax_rate, Taxable_income, Income_money, Withhold_taxable, Owned_company, Update_time',
                 where='Userid="%s" order by Pay_time desc' % gs_id)
 
     if not len(gs_history):
@@ -383,7 +454,9 @@ def gs_history_info(gs_id):
 
     data_list = []
 
+    data_dict = {"year":'', "list":[], "tax_sum":0}
     for info in gs_history:
+
 
         data = {
             "Pay_time" : info[0],  # 缴纳时间
@@ -394,8 +467,16 @@ def gs_history_info(gs_id):
             "Withhold_taxable" : info[5],  # 实际扣缴所得税
             "Owned_company" : info[6],  # 纳税义务人
         }
+        if info[0][:4] == data_dict["year"]:
+            data_dict["list"].append(data)
+            data_dict["tax_sum"] += int(info[5])
+            continue
+        if data_dict["year"]:
+            data_list.append(data_dict)
+        data_dict = {"year": info[0][:4], "list": [data], "tax_sum":0}
 
-        data_list.append(data)
+    data_list.append(data_dict)
+        # data_list.append(data)
 
     return data_list
 
@@ -413,15 +494,16 @@ def gjj_all_info(id):
         data = {
             "id" : gjj_info[0],  # id
             "username" : gjj_info[1],  # 用户名
-            "Sex" : gjj_info[2],  # 性别
-            "Card_number" : gjj_info[3],  # 身份证号
-            "Department_number" : gjj_info[4],  # 职工账号
-            "Bank_card" : gjj_info[5],  # 银行卡号
-            "Phone" : gjj_info[6],  # 电话
-            "Pay_status" : gjj_info[7],  # 当前缴纳状态
-            "Fund_banlance" : gjj_info[8],  # 公积金余额
-            "Insured_area" : gjj_info[9],  # 当前缴纳区域
-            "Owned_company" : gjj_info[10],  # 所属公司单位
+            "sex" : str(gjj_info[2]),  # 性别
+            # "Card_number" : gjj_info[3],  # 身份证号
+            # "Department_number" : gjj_info[4],  # 职工账号
+            # "Bank_card" : gjj_info[5],  # 银行卡号
+            # "Phone" : gjj_info[6],  # 电话
+            # "Pay_status" : gjj_info[7],  # 当前缴纳状态
+            # "Fund_banlance" : gjj_info[8],  # 公积金余额
+            # "Insured_area" : gjj_info[9],  # 当前缴纳区域
+            # "Owned_company" : gjj_info[10],  # 所属公司单位
+            "type": 3,
         }
         data_list.append(data)
 
@@ -434,7 +516,7 @@ def gjj_info(gjj_id):
     '''
 
     gjj_info = check_mysql('bjgjj_info',
-                              'id, username, Sex, Card_number, Department_number, Bank_card, Phone, Pay_status, Fund_banlance, Insured_area, Owned_company, User_id',
+                              'id, username, Sex, Card_number, Department_number, Bank_card, Phone, Pay_status, Fund_banlance, Insured_area, Owned_company, User_id, last_year_money',
                               where='id="%s"' % gjj_id)
 
     # 判断查询社保是否为空
@@ -453,6 +535,7 @@ def gjj_info(gjj_id):
         "Fund_banlance": gjj_info[0][8],  # 公积金余额
         "Insured_area": gjj_info[0][9],  # 当前缴纳区域
         "Owned_company": gjj_info[0][10],  # 所属公司单位
+        "last_year_money": gjj_info[0][12]  # 去年余额
     }
     user_id_list = gjj_info[0][11].split(',')  # 社保用户关联的注册用户的ｉｄ
 
@@ -464,27 +547,84 @@ def gjj_history_info(gjj_id):
     :return: [{}, {}...]
     '''
     gjj_history = check_mysql('bjgjj_history',
-                'Transact_time, Abstract, Occurrencev, Balance, Company_number, Owned_company',
+                'Transact_time, Abstract, Occurrencev, Balance, Company_number, Owned_company, type, increase, reduce',
                 where='Userid="%s" order by Transact_time desc' % gjj_id)
 
     if not len(gjj_history):
         return []
 
+    print(gjj_history)
 
     data_list = []
+
+    data_info = {
+        "add": '',  # 月缴存额（该月增加额）
+        "unit_pay": '',  # 单位月缴纳额
+        "individual_pay": '',  # 个人月缴纳额
+        "year_sum": 0,  # 本年缴交，增加额度相加
+        "year_reduce": 0,  # 本年支取
+        "pay_bottom": '',  # 缴至年月
+    }
+
+    data_dict = {
+        "year": '',
+        "list": [],
+        "gjj_sum": 0,
+    }
+    # 提取个人信息
+    gjj_individual, user_id_list = gjj_info(gjj_id)
+    data_info["Fund_banlance"] = gjj_individual["Fund_banlance"]  # 转出余额
+    data_info["last_year_money"] = gjj_individual["last_year_money"]  # 上年结转余额
+
 
     for info in gjj_history:
 
         data = {
             "Transact_time": info[0],  # 入账办结时间
-            "Abstract": info[1],  # 摘要
+            "Abstract": info[1],  # 摘要／业务逻辑
             "Occurrencev": info[2],  # 发生额
             "Balance": info[3],  # 公积金余额
             "Company_number": info[4],  # 单位账号
             "Owned_company": info[5],  # 纳税义务人（公司）
+            # "type" : info[6],  # 业务逻辑
+            "increase": info[7],  # 增加额(元)
+            "reduce": info[8],  # 减少额(元)
         }
+        print(info)
 
-        data_list.append(data)
+        # data_list.append(data)
+        # 月缴存额
+        if not data_info["add"] and data["increase"]:
+            data_info["add"] = data["increase"]
+            data_info["unit_pay"] = round(data['increase']/2, 2)
+            data_info["individual_pay"] = round(data['increase'] / 2, 2)
+
+        # 缴至年月=（可抓取到就是最近一次办理业务的时间，往后推到月底。）
+        if not data_info["pay_bottom"]:
+            time_str = ''.join(info[0].split('-'))
+            w, m = calendar.monthrange(int(time_str[:4]), int(time_str[4:6]))
+            data_info["pay_bottom"] = time_str[:6] + str(m)
+
+
+        # 本年缴纳额
+        if time.strftime('%Y-%m-%d',time.localtime(time.time())) == info[0][4] and data["increase"]:
+            data_info["year_sum"] += data["increase"]
+
+        # 本年支取
+        if time.strftime('%Y-%m-%d', time.localtime(time.time())) == info[0][4] and data["reduce"]:
+            data_info["year_reduce"] += data["reduce"]
+
+        # 每年总额
+        if info[0][:4] == data_dict["year"]:
+            data_dict["list"].append(data)
+            data_dict["gjj_sum"] += int(info[7] if info[7] else 0)
+            continue
+        if data_dict["year"]:
+            data_list.append(data_dict)
+        data_dict = {"year": info[0][:4], "list": [data], "gjj_sum": 0}
+
+    data_list.append(data_dict)
+    data_list.append(data_info)
 
     return data_list
 

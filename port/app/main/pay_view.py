@@ -4,6 +4,10 @@ import json
 import requests
 import random
 from .z import *
+from threading import Thread
+from .bj.bjgjj import bjgjj_one, bjgjj_two
+from .bj.bjgs import bjgs_one, bjgs_two
+from .bj.bjrbj import bjsb_one, bjsb_two
 
 # 社保
 @main.route('/society/info', methods=['post'])
@@ -53,6 +57,7 @@ def society_info():
     json_data = json.dumps(data)
     print('查询成功')
     print(json_data)
+    save_log(tel, '查询社保个人信息', '社保', ip=request.remote_addr)
     return json_data
 
 # 关于注册用户所有社保个人信息
@@ -72,6 +77,7 @@ def society_all():
     json_data = json.dumps(data)
     print('查询关联注册用户所有社保信息成功')
     print(json_data)
+    save_log(tel, '查询关联社保人', '社保', ip=request.remote_addr)
     return json_data
 
 # 社保历史信息
@@ -79,8 +85,17 @@ def society_all():
 @have_tel_run
 def society_history():
     sb_id = request.form['sb_id']
+    type5 = request.form['type']
+    type_list = [
+        "medical",  # 医保
+        "endowment",  # 养老
+        "unemployment",  # 失业
+        "wound",  # 工伤
+        "maternity",  # 生育
+    ]
+    society_dict = sb_history_info(sb_id)[type_list[int(type5)-1]]
 
-    society_dict = sb_history_info(sb_id)
+
 
 
     data = {
@@ -88,10 +103,11 @@ def society_history():
         "msg": "成功",
         "result": "1",
     }
-    data['data'] = society_dict
+    data['list'] = society_dict
     json_data = json.dumps(data)
     print('查询关联注册用户所有社保信息成功')
     print(json_data)
+    save_log(g.tel, '查询社保历史信息', '社保', ip=request.remote_addr)
     return json_data
 
 
@@ -112,6 +128,7 @@ def tax_all():
     json_data = json.dumps(data)
     print('查询关联注册用户所有个税信息成功')
     print(json_data)
+    save_log(tel, '查询用户关联个税用户', '个税', ip=request.remote_addr)
     return json_data
 
     # gs_all_info()
@@ -154,6 +171,7 @@ def tax_info():
     json_data = json.dumps(data)
     print('查询个税成功')
     print(json_data)
+    save_log(tel, '查询个税单个信息', '个税', ip=request.remote_addr)
     return json_data
 
 # 个税：历史信息
@@ -174,6 +192,7 @@ def tax_history():
     json_data = json.dumps(data)
     print('查询关联注册用户所有个税信息成功')
     print(json_data)
+    save_log(g.tel, '查询个税历史信息', '个税', ip=request.remote_addr)
     return json_data
 
 
@@ -190,10 +209,12 @@ def fund_all():
         "msg": "成功",
         "result": "1",
     }
+
     data['list'] = fund_all_list
     json_data = json.dumps(data)
     print('查询关联注册用户所有公积金信息成功')
     print(json_data)
+    save_log(tel, '查询用户关联公积金用户', '公积金', ip=request.remote_addr)
     return json_data
 
 # 公积金：　一个
@@ -233,6 +254,7 @@ def fund_info():
     json_data = json.dumps(data)
     print('查询个税成功')
     print(json_data)
+    save_log(tel, '查询公积金单个信息', '公积金', ip=request.remote_addr)
     return json_data
 
 # 公积金：历史信息
@@ -253,6 +275,7 @@ def fund_history():
     json_data = json.dumps(data)
     print('查询关联注册用户所有公积金信息成功')
     print(json_data)
+    save_log(g.tel, '查询公积金历史信息', '公积金', ip=request.remote_addr)
     return json_data
 
 
@@ -263,8 +286,14 @@ def society_add():
     user_id = request.form['user_id']
     id_card = request.form['id_card']
     password = request.form['password']
+    card_type = request.form['card_type']
     # 调用爬虫，传入参数用户ｉｄ，存入数据库
-    save_mysql('SocialSecurity_info', {"userid" : user_id, 'card_number' : id_card, "password" : password})  # 测试
+    # save_mysql('SocialSecurity_info', {"userid" : user_id, 'card_number' : id_card, "password" : password})  # 测试
+
+    # 线程 调用爬虫
+    t = Thread(target=bjsb_one, args=(id_card, password, card_type, user_id))
+    t.start()
+
     # 返回结果
     data = {
         "code": 200,
@@ -272,8 +301,38 @@ def society_add():
         "result": "1",
     }
     json_data = json.dumps(data)
-    print('存储社保成功')
+    print('社保调用爬虫成功')
+
     return json_data
+
+# 获取:社保 手机短信
+@main.route('/society/tel/code', methods=['post'])
+def society_code():
+    id_card = request.form['id_card']
+    tel_code = request.form['tel_code']
+    with open('./tel_code/'+ id_card+'.txt', 'w')as f:
+        f.write(tel_code)
+    # print(id_card)
+
+    data = {
+        "code": 200,
+        "msg": "成功",
+        "result": "1",
+    }
+    for i in range(600):
+        with open('./tel_code/'+ id_card+'.txt', 'r')as f:
+            text = f.read()
+        if '成功' == text:
+            return json.dumps(data)
+        time.sleep(0.1)
+
+    data = {
+        "code": 404,
+        "msg": "失败",
+        "result": "-1",
+    }
+    return json.dumps(data)
+
 
 # 添加：个税
 @main.route('/tax/add', methods=['post'])
@@ -284,12 +343,22 @@ def tax_add():
     card_type = request.form['card_type']
     password = request.form['password']
     # 调用爬虫，传入参数用户ｉｄ，存入数据库
-    save_mysql('personaltax_info', {"UserID": user_id, 'card': card, "password": password, 'Username' : name, 'card_type':card_type})  # 测试
+    # save_mysql('personaltax_info', {"UserID": user_id, 'card': card, "password": password, 'Username' : name, 'card_type':card_type})  # 测试
+    status = bjgs_one(card, password, name, card_type, user_id)
     # 返回结果
+    if status:
+        data = {
+            "code": 200,
+            "msg": "成功",
+            "result": "1",
+        }
+        json_data = json.dumps(data)
+        print('存储个税成功')
+        return json_data
     data = {
-        "code": 200,
-        "msg": "成功",
-        "result": "1",
+        "code": 404,
+        "msg": "失败",
+        "result": "-1",
     }
     json_data = json.dumps(data)
     print('存储个税成功')
@@ -303,8 +372,21 @@ def fund_add():
     card_type = request.form['card_type']
     password = request.form['password']
     # 调用爬虫，传入参数用户ｉｄ，存入数据库
-    save_mysql('bjgjj_info',
-               {"User_id": user_id, 'card': card, "password": password, 'card_type': card_type})  # 测试
+    status = bjgjj_one(card, password, card_type, user_id)
+
+    # 抓取失败时:
+    if not status:
+        data = {
+            "code": 404,
+            "msg": "失败",
+            "result": -1
+        }
+        json_data = json.dumps(data)
+        print('存储公积金失败')
+        return json_data
+
+    # save_mysql('bjgjj_info',
+    #            {"User_id": user_id, 'card': card, "password": password, 'card_type': card_type})  # 测试
     # 返回结果
     data = {
         "code": 200,
@@ -373,3 +455,101 @@ def fund_delete():
     json_data = json.dumps(data)
     print('删除公积金成功')
     return json_data
+
+# 更新:社保 (根据社保id抓取数据存储)
+@main.route('/society/update', methods=['post'])
+@have_tel_run
+def society_update():
+    sb_id = request.form['sb_id']
+
+    # 线程 调用爬虫
+    t = Thread(target=bjsb_two, args=(sb_id,))
+    t.start()
+
+    # 返回结果
+    data = {
+        "code": 200,
+        "msg": "成功",
+        "result": "1",
+    }
+    print('更新社保调用爬虫成功')
+    #
+    return json.dumps(data)
+
+
+# 更新:个税 (根据个税id抓取数据存储)
+@main.route('/tax/update', methods=['post'])
+@have_tel_run
+def tax_update():
+    gs_id = request.form['gs_id']
+    status = bjgs_two(gs_id)
+    if status:
+        data = {
+            "code": 200,
+            "msg": "成功",
+            "result": "1",
+        }
+        json_data = json.dumps(data)
+        print('更新个税成功')
+        return json_data
+
+    data = {
+        "code": 404,
+        "msg": "失败",
+        "result": -1
+    }
+    json_data = json.dumps(data)
+    print('更新个税失败')
+    return json_data
+
+
+# 更新:公积金 (根据公积金id抓取数据存储)
+@main.route('/fund/update', methods=['post'])
+@have_tel_run
+def fund_update():
+    gjj_id = request.form['gjj_id']
+    status = bjgjj_two(gjj_id)
+    if status:
+        data = {
+            "code": 200,
+            "msg": "成功",
+            "result": "1",
+        }
+        json_data = json.dumps(data)
+        print('更新公积金成功')
+        return json_data
+
+    data = {
+        "code": 404,
+        "msg": "失败",
+        "result": -1
+    }
+    json_data = json.dumps(data)
+    print('更新公积金失败')
+    return json_data
+
+
+def cs_sleep():
+    a = 0
+    while True:
+        print(a)
+        time.sleep(4)
+        a += 1
+
+
+@main.route('/cs/yield', methods=['post'])
+def cs_yield():
+    print('111')
+    t = Thread(target=cs_sleep)
+    t.start()
+    # cs_sleep()
+    print('222')
+
+    return '333'
+
+
+
+@main.route('/cs', methods=['post'])
+def cs():
+    return 'cs...... ...... ...'
+

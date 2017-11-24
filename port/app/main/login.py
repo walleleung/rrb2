@@ -4,6 +4,8 @@ import json
 import requests
 import random
 from .z import *
+import base64
+
 
 def send_code(tel, code):
     data = {}
@@ -218,6 +220,7 @@ def login():
     data['data'] = user_dict
     json_data = json.dumps(data)
     print('登陆成功')
+    save_log(tel, '登陆', '登陆', ip=request.remote_addr)
     return json_data
 
 # 注册
@@ -282,6 +285,7 @@ def register():
     data['result'] = '1'
     json_data = json.dumps(data)
     print('注册成功')
+    save_log(tel, '注册', '注册', ip=request.remote_addr)
     return json_data
 
 # 发送验证码
@@ -367,6 +371,7 @@ def reset_password():
     data['result'] = '1'
     json_data = json.dumps(data)
     print('更改密码成功')
+    save_log(tel, '找回密码', '密码', ip=request.remote_addr)
     return json_data
 
 # 修改密码
@@ -391,7 +396,7 @@ def edit_password():
     # 判断密码
     password = check_mysql(tables='360_user', column='password', where='mobile="%s"' % tel)
     if not len(password):
-        data['msg'] = '未知错误'
+        data['msg'] = '未注册'
         json_data = json.dumps(data)
         print('查询数据为空')
         return json_data
@@ -412,6 +417,7 @@ def edit_password():
     data['result'] = '1'
     json_data = json.dumps(data)
     print('更改密码成功')
+    save_log(tel, '修改密码', '密码', ip=request.remote_addr)
     return json_data
 
 # 查询注册用户信息
@@ -429,6 +435,7 @@ def user_check():
     json_data = json.dumps(data)
     print('查询注册用户信息成功')
     print(json_data)
+    save_log(tel, '查询了注册用户个人信息', '用户个人信息', ip=request.remote_addr)
     return json_data
 
 
@@ -442,7 +449,7 @@ def user_edit():
     db_dict = {
         "username": "username",  # 用户名
         "nikename": "nikename",  # 昵称
-        "header_image": "header_image",  # 头像地址
+        "header_image": "header_image",  # 头像地址(二进制)
         "email": "email",  # 邮箱
         "card_number": "card_number",  # 身份证号
         "Province_id": "Province_id",  # 省份ID
@@ -463,6 +470,28 @@ def user_edit():
     for key in key_list:
         data[db_dict[key]] = request.form[key]
 
+    # 存图片
+    img_name = ''
+    if 'header_image' in key_list:
+        img_data = request.form['header_image']
+        # print(img_data)
+        # print(len(img_data))
+        # print(type(img_data))
+        # img_data = eval(img_data)
+        img_data = base64.b64decode(img_data)
+        # img_data = request.files['header_image']
+        print('存数据')
+        img_name = str(int(time.time()*1000000000000000)) + '.png'
+        # img_name = '2.png'
+        img_path = 'app/static/%s' % img_name
+        # type(img_data)
+        with open(img_path, 'wb')as f:
+            f.write(img_data)
+
+    data['header_image'] = img_name
+    # print(data)
+
+
     update_mysql('360_user', data, 'mobile="%s"' % tel)
 
     data = {
@@ -472,6 +501,7 @@ def user_edit():
     }
     json_data = json.dumps(data)
     print('修改注册用户信息成功')
+    save_log(tel, '修改了用户信息', '用户信息', ip=request.remote_addr)
     # print(json_data)
     return json_data
 
@@ -485,33 +515,97 @@ def user_sgg():
         "code": 200,
         "msg": "成功",
         "result": "1",
-        "sb_info" : '',
-        "gs_info" : '',
-        "gjj_info" : ''
+        "sb_info" : None,
+        "gs_info" : None,
+        "gjj_info" : None
     }
+    # 社保
     try:
         sb_id = request.form['sb_id']
         social_info, user_id_list = sb_info(sb_id)
-        data['sb_info'] = social_info
-    except:
-        print('查询社保失败')
+        social_info['recent_update_time'] = '0000-00-00'  # 没做: 最近更新时间简
 
+        data['sb_info'] = social_info
+        save_log(g.tel, '查询社保', '查询社保', ip=request.remote_addr)
+    except Exception as e:
+        print('查询社保失败:', e)
+
+    # 个税
     try:
         gs_id = request.form['gs_id']
         tax_info, user_id_list = gs_info(gs_id)
-        data['gs_info'] = tax_info
-    except:
-        print('查询个税失败')
+        data_dict = {
+            "Username": tax_info["Username"],  # 用户姓名
+            # "Sex": tax_info["Sex"],  # 1代表男，2代表女
+            # "Card_number": tax_info["Card_number"],  # 身份证号
+            # "Recently_paid": tax_info["Recently_paid"],  # 最近缴纳
+            # "Monthly_deposit": tax_info["Monthly_deposit"],  # 月缴存额
+            # "owned_company": tax_info["owned_company"],  # 所属单位
+            # "pay_total": tax_info["pay_total"],  # 缴纳总额
+            "id": tax_info["id"],  # id
+            "normal": -1,  # 个税状态
+            # "recent_update_time": tax_info['recent_update_time']  # 修改时间(最近更新时间)
+        }
 
+        # 历史信息
+        gs_history = gs_history_info(gs_id)
+        if gs_history:
+            data_dict["time"] = gs_history[0]["list"][0]["Pay_time"]  # 缴纳时间
+            data_dict['tax'] = '应扣纳税额，没数据'
+        if time.strftime('%Y-%m', time.localtime(time.time())) == data_dict["time"]:
+            data_dict['normal'] = 1  # 个税状态
+        print('-'*30)
+        data_dict['recent_update_time'] = '0000-00-00'  # 没做: 最近更新时间简
+
+
+        data['gs_info'] = data_dict
+
+        save_log(g.tel, '查询个税', '查询个税', ip=request.remote_addr)
+    except Exception as e:
+        print('查询个税失败:', e)
+
+    # 公积金
     try:
         gjj_id = request.form['gjj_id']
         fund_info, user_id_list = gjj_info(gjj_id)
-        data['gjj_info'] = fund_info
-    except:
-        print('查询公积金失败')
+
+        data_dict = {
+            "id": fund_info["id"],  # id
+            "username": fund_info["username"],  # 用户名
+            # "Sex": fund_info["Sex"],  # 性别
+            # "Card_number": fund_info["Card_number"],  # 身份证号
+            "Department_number": fund_info["Department_number"],  # 职工账号
+            # "Bank_card": fund_info["Bank_card"],  # 银行卡号
+            # "Phone": fund_info["Phone"],  # 电话
+            # "Pay_status": fund_info["Pay_status"],  # 当前缴纳状态
+            # "Fund_banlance": fund_info["Fund_banlance"],  # 公积金余额
+            # "Insured_area": fund_info["Insured_area"],  # 当前缴纳区域
+            # "Owned_company": fund_info["Owned_company"],  # 所属公司单位
+            "normal": -1,
+        }
+
+        # 获取历史最新最近缴纳时间
+        gjj_history = gjj_history_info(gjj_id)
+        print(gjj_history)
+        if gjj_history:
+            print('1')
+            # data_dict['time'] = gjj_history[0]["Transact_time"]
+            data_dict['time'] = gjj_history[0]["list"][0]["Transact_time"]
+            print('2')
+
+        if time.strftime('%Y-%m', time.localtime(time.time())) == data_dict["time"]:
+            data_dict['normal'] = 1  # 公积金状态
+
+        data_dict['recent_update_time'] = '0000-00-00'  # 没做: 最近更新时间简
+        data['gjj_info'] = data_dict
+
+        save_log(g.tel, '查询公积金', '查询公积金', ip=request.remote_addr)
+    except Exception as e:
+        print('查询公积金失败:', e)
     # post_dict = request.form.to_dict()
 
     json_data = json.dumps(data)
     print('查询３个完成')
     # print(json_data)
+
     return json_data
