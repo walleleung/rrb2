@@ -54,7 +54,7 @@ class RClient(object):
 
 
 def code_zy(im):
-    rc = RClient('xzxytx', 'zhouyu01', '90196', '437014909da5443aa918563db94a93a8')
+    
     return rc.rk_create(im, 3040)
 
 
