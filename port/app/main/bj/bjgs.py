@@ -342,13 +342,3 @@ def bjgs_two(gs_id):
 
 
 
-if __name__ == '__main__':
-    bjgs = Bjgs('372924199601063012', 'liu123456', '刘敬', '201')
-    # bjrbj = Bjrbj('110107197906121210', 'cuipeng6120')
-    # bjgs.start()
-
-    bjgs.first('4')
-    # bjgs.second(1)
-    # bjgs.automatic()
-
-
