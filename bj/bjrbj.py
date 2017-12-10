@@ -740,11 +740,4 @@ class Bjrbj():
     #     self.conn.close()
 
 
-if __name__ == '__main__':
-    bjrbj = Bjrbj('360403199307261840', '810064mn')
-    # bjrbj = Bjrbj('360403199307261811', 'jkgkjg876')
-    # bjrbj = Bjrbj('110107197906121210', 'cuipeng6120')
-    bjrbj.start()
-
-    #bjrbj.close()
 
