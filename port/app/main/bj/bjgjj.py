@@ -719,7 +719,6 @@ def bjgjj_two(gjj_id):
     return status
 
 if __name__ == '__main__':
-    bjgjj = BjGjj('110107197906121210', '811130')
     # bjgjj.start()
     # bjgjj.cs()
     # bjgjj.first(1)
