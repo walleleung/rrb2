@@ -476,6 +476,4 @@ class BjGjj():
         self.conn.close()  # 关闭连接
 
 
-if __name__ == '__main__':
-    bjgjj = BjGjj('110107197906121210', '811130')
-    bjgjj.start()
+
